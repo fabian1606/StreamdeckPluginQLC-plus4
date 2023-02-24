@@ -1,0 +1,54 @@
+{
+  "Actions": [
+    {
+      "Icon": "action/images/iconVC", 
+      "Name": "Virtual Console Input", 
+      "States": [
+        {
+          "Image": "action/images/image"
+        }
+      ], 
+      "Tooltip": "controll an input of the QLC+ Virtual Console", 
+      "UUID": "com.qlc.QLC-Connect.action"
+    }
+  ], 
+  "SDKVersion": 2,
+  "Author": "Fabian Rafreider", 
+  "CodePath": "index.html", 
+  "PropertyInspectorPath": "index_qlc.html", 
+  "Description": "QLC+ Plugin for Stream Deck", 
+  "Name": "QLC-Connect", 
+  "Icon": "images/default", 
+  "URL": "https://www.qlcplus.org/", 
+  "Category": "QLC+ Control",
+  "CategoryIcon": "images/pluginIcon",
+  "Version": "1.0",
+  "OS": [
+    {
+        "Platform": "mac", 
+        "MinimumVersion" : "10.11"
+    },
+    {
+        "Platform": "windows", 
+        "MinimumVersion" : "10"
+    }
+  ],
+  "ApplicationsToMonitor": {
+    "mac": [ 
+      "com.apple.mail",
+      "com.apple.Safari",
+      "com.apple.systempreferences",
+      "com.apple.ActivityMonitor"
+    ],
+    "windows": [
+      "chrome.exe",
+      "Code.exe",
+      "MicrosoftEdge.exe",
+      "iexplore.exe"
+    ]
+  },
+  "Software": 
+    {
+        "MinimumVersion" : "4.1"
+    }
+}

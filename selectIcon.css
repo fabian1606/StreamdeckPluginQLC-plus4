@@ -1,0 +1,33 @@
+#active-icon{
+    margin: 15px;
+}
+#active-icon,
+.icon-option-img{
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-color: #515151;
+    background-image: url("images/types/qlcIcon.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
+    margin: 2px;
+    border: 1px solid #242424;
+    color: red;
+    display: block;
+}
+
+#icon-options{
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 140px;
+    height: fit-content;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 2px;
+    background-color: #575757;
+}

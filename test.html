@@ -1,0 +1,116 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestFile</title>
+    <link rel="stylesheet" href="css/sdpi.css">
+</head>
+<body>
+    <div class="sdpi-wrapper">
+        
+    </div>
+</body>
+<script>
+    var websocket;
+    var isConnected = false;
+    var widgets;
+
+    var ip = "127.0.0.1:9999";
+    var wshost = "http:"+ip;
+
+    //connectToWebSocket(ip);
+
+    // helper function to send QLC+ API commands
+    
+
+    function connectToWebSocket(host) {
+        var url = 'ws://' + host + '/qlcplusWS';
+        websocket = new WebSocket(url);
+        // update the host information
+        wshost = "http://" + host;
+    
+        websocket.onopen = function(ev) {
+        //alert("QLC+ connection successful");
+        document.getElementById('connected').style.backgroundColor = "#00ff00";
+        document.getElementById('connected').style.color = "black";
+        document.getElementById('connected').innerHTML= "connected";
+        //document.getElementById('content-if-connected').style.display = "block";
+        isConnected = true;
+        setTimeout(() => window.close(),1500);
+        
+        };
+    
+        websocket.onclose = function(ev) {
+            document.getElementById('connected').style.backgroundColor = "#ff0000";
+            document.getElementById('connected').style.color = "#ffffff";
+            document.getElementById('connected').innerHTML= "Not Connected";
+        };
+    
+        websocket.onerror = function(ev) {
+        //alert("QLC+ connection error!");
+        };
+    
+        // WebSocket message handler. This is where async events
+        // will be shown or processed as needed
+    
+    }
+    var websocket = null,
+    uuid = null,
+    actionInfo = {},
+    inInfo = {},
+    runningApps = [],
+    settings = {},
+    isQT = navigator.appVersion.includes('QtWebEngine'),
+    onchangeevt = 'onchange'; // 'oninput'; // change this, if you want interactive elements act on any change, or while they're modified
+
+function connectElgatoStreamDeckSocket (inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+    uuid = inUUID;
+    // please note: the incoming arguments are of type STRING, so
+    // in case of the inActionInfo, we must parse it into JSON first
+    actionInfo = JSON.parse(inActionInfo); // cache the info
+    inInfo = JSON.parse(inInfo);
+    websocket = new WebSocket('ws://127.0.0.1:' + inPort);
+
+    /** Since the PI doesn't have access to your OS native settings
+     * Stream Deck sends some color settings to PI
+     * We use these to adjust some styles (e.g. highlight-colors for checkboxes)
+     */
+    addDynamicStyles(inInfo.colors, 'connectElgatoStreamDeckSocket');
+    
+    /** let's see, if we have some settings */
+    settings = getPropFromString(actionInfo, 'payload.settings', false);
+    // console.log(settings, actionInfo);
+    initPropertyInspector(5);
+
+    // if connection was established, the websocket sends
+    // an 'onopen' event, where we need to register our PI
+    websocket.onopen = function () {
+        alert()
+        var json = {
+            event: inRegisterEvent,
+            uuid: inUUID
+        };
+        // register property inspector to Stream Deck
+        websocket.send(JSON.stringify(json));
+        // demoCanvas();
+    };
+
+    websocket.onmessage = function (evt) {
+        // Received message from Stream Deck
+        var jsonObj = JSON.parse(evt.data);
+        var event = jsonObj['event'];
+        if (getPropFromString(jsonObj, 'payload.runningApps') && event === 'sendToPropertyInspector') {
+            sdpiCreateList(document.querySelector('#runningAppsContainer'), {
+                id: 'runningAppsID', 
+                label: 'Running Apps',
+                value: jsonObj.payload.runningApps,
+                type: 'list',
+                selectionType: 'no-select'
+            });
+        }
+    };
+}
+</script>
+</html> -->
