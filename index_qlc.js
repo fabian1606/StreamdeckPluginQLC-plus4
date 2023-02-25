@@ -33,7 +33,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         websocket.send(JSON.stringify(json));
         loadGlobalSetting('qlcIP');
         //alert("loading global Setting");
-        demoCanvas("effekst");
+        demoCanvas("effekt");
     };
 
     websocket.onmessage = function (evt) {
@@ -59,7 +59,6 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
                     if (element.value == widgetId)
                         document.getElementById("select-vc-widget").selectedIndex = i;
                 }
-                alert("widget");
 
             }
             if (getPropFromString(jsonObj, 'payload.settings.vcWidgetRes')) {
@@ -482,8 +481,27 @@ const getPropFromString = (jsn, str, sep = '.') => {
 // import data from 'imageConfig.json';
 
 var img = new Image();
+let iconDescription = "";
+let iconColor = "";
+let iconImage = "";
 
-async function demoCanvas(text = "") {
+document.querySelector("#select-vc-widget").addEventListener("change", function (e) {
+    demoCanvas(e.target.options[e.target.selectedIndex].text);
+});
+
+document.querySelector("#icon-options").addEventListener("click", function (e) {
+    demoCanvas("",iconColor,e.target.style.backgroundImage.slice(4, -1).replace(/"/g, ""),iconDescription);
+});
+document.querySelector("#colorselection input").addEventListener("change", function (e) {
+    iconColor = e.target.value;
+    demoCanvas("",iconColor,iconImage,iconDescription);
+});
+document.querySelector("#icon-name input").addEventListener("change", function (e) {
+    iconDescription = e.target.value;
+    demoCanvas("",iconColor,iconImage,iconDescription);
+});
+
+async function demoCanvas(text = "",color="",imgSrc="",imgTitle="") {
     const touchDevice = (('ontouchstart' in document.documentElement) && (navigator.platform != 'Win32'));
     const evtDown = touchDevice ? 'touchstart' : 'mousedown';
     const evtMove = touchDevice ? 'touchmove' : 'mousemove';
@@ -629,9 +647,13 @@ async function demoCanvas(text = "") {
         ctx.lineWidth = 4;
         ctx.strokeStyle = '#00ff00';
         ctx.fillStyle = "black";
-        text = text.toUpperCase();
+        text = (imgTitle || text).toUpperCase();
+        iconDescription = text;
+        document.querySelector("#icon-name input").value = text;
         ctx.fillRect(0, 0, cnv.width, cnv.height);
-        let accentColor = checkColor(text);
+        let accentColor = color || checkColor(text);
+        document.querySelector("#colorselection input").value = accentColor;
+        iconColor = accentColor;
         ctx.fillStyle = accentColor;
         ctx.fillRect(0, 0, cnv.width, cnv.height / 4);
         ctx.fillStyle = lightOrDark(accentColor);
@@ -651,7 +673,9 @@ async function demoCanvas(text = "") {
         ctx.fill();
         ctx.stroke();
         //ctx image
-        img.src = checkType(text);
+        img.src = imgSrc || checkType(text);
+        iconImage = img.src;
+        document.querySelector("#active-icon").style.backgroundImage = `url(${img.src})`;
         img.onload = function () {
             ctx.drawImage(img, cnv.width / 2 - 35, cnv.height / 2 + cnv.height / 8 - 35, 70, 70);
             updateKeyForDemoCanvas(cnv, cnv);

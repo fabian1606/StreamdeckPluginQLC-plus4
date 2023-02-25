@@ -258,7 +258,6 @@ function loadImage(callback) {
 
     ctx.fillStyle = "red";
     ctx.fillRect(0, 0, 20,20);
-    alert("test");
     ctx.save();
 
     callback(canvas.toDataURL('image/png'));

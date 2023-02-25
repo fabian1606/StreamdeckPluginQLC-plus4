@@ -140,7 +140,10 @@ function connectToWebSocket(host) {
           else{
             document.getElementById(selectId).style.backgroundColor = "#627645";
             setInterval(function() {document.getElementById(selectId).style.backgroundColor = "#3d3d3d"},1000);
-            document.getElementById("select"+selectId.split("button")[1]).selectedIndex  = autoDetectNumber+1;
+            let select = document.getElementById("select"+selectId.split("button")[1]);
+            select.value=select.options[autoDetectNumber+1].value;
+            select.dispatchEvent(new Event('change'));
+            alert(select.options[autoDetectNumber+1].text);
             autoDetectNumber = 0;
             widgets.forEach(widget => {
               widget.status = "";
