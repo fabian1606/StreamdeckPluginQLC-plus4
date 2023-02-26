@@ -5,7 +5,7 @@
       "Name": "Virtual Console Input", 
       "States": [
         {
-          "Image": "action/images/image"
+          "Image": "images/defaultIcon"
         }
       ], 
       "Tooltip": "controll an input of the QLC+ Virtual Console", 
@@ -18,7 +18,7 @@
   "PropertyInspectorPath": "index_qlc.html", 
   "Description": "QLC+ Plugin for Stream Deck", 
   "Name": "QLC-Connect", 
-  "Icon": "images/defaultIcon", 
+  "Icon": "action/images/iconVC", 
   "URL": "https://www.qlcplus.org/", 
   "Category": "QLC+ Control",
   "CategoryIcon": "images/pluginIcon",
