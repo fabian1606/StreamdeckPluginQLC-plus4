@@ -1,5 +1,45 @@
 // this is our global websocket, used to communicate from/to Stream Deck software
 // and some info about our plugin, as sent by Stream Deck software
+
+let iconDescription = "";
+let iconColor = "";
+let iconImage = "";
+let vcWidget = "";
+let vcWidgetValue = 255;
+let vcWidgetRes = "";
+let vcWidgetResValue = 255;
+let buttonType = "0";
+
+document.querySelector('#valueSend').addEventListener('change', function() {
+    vcWidgetValue = document.querySelector("#valueSend input").value;
+    saveSetting();
+});
+document.querySelector('#valueSend2').addEventListener('change', function(e) {
+    vcWidgetResValue =  document.querySelector("#valueSend2 input").value;
+    saveSetting();
+});
+
+document.querySelector('#radioBtn0').addEventListener('change', function(e) {
+    vcWidgetRes = "";
+    document.querySelector("#release-ev").style.display = "none";
+    buttonType = "0";
+    saveSetting();
+});
+
+
+document.querySelector('#radioBtn1').addEventListener('change', function(e) {
+    document.querySelector("#release-ev").style.display = "block";
+    buttonType = "1";
+    saveSetting();
+});
+document.querySelector('#radioBtn2').addEventListener('change', function(e) {
+    vcWidgetRes = "";
+    document.querySelector("#release-ev").style.display = "none";
+    buttonType = "2";
+    saveSetting();
+});
+
+
 var websocket = null,
     uuid = null,
     actionInfo = {},
@@ -33,7 +73,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         websocket.send(JSON.stringify(json));
         loadGlobalSetting('qlcIP');
         //alert("loading global Setting");
-        demoCanvas("effekt");
+        // demoCanvas("qlc",iconColor, iconDescription, iconImage);
     };
 
     websocket.onmessage = function (evt) {
@@ -53,27 +93,59 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
         if (event === 'didReceiveSettings') {
             if (getPropFromString(jsonObj, 'payload.settings.vcWidget')) {
                 var widgetId = jsonObj.payload.settings.vcWidget;
+                vcWidget = widgetId;
                 let select = document.getElementById("select-vc-widget").options;
                 for (let i = 0; i < select.length; i++) {
                     const element = select[i];
                     if (element.value == widgetId)
-                        document.getElementById("select-vc-widget").selectedIndex = i;
+                    document.getElementById("select-vc-widget").selectedIndex = i;
                 }
-
+                
             }
             if (getPropFromString(jsonObj, 'payload.settings.vcWidgetRes')) {
                 var widgetId = jsonObj.payload.settings.vcWidgetRes;
+                vcWidgetRes = widgetId;
                 let select = document.getElementById("select-vc-widget2").options;
                 for (let i = 0; i < select.length; i++) {
                     const element = select[i];
                     if (element.value == widgetId)
-                        document.getElementById("select-vc-widget2").selectedIndex = i;
+                    document.getElementById("select-vc-widget2").selectedIndex = i;
                 }
-                alert(jsonObj.payload.settings);
-
+            }
+            if (getPropFromString(jsonObj, 'payload.settings.vcWidgetVal')) {
+                var widgetValue = jsonObj.payload.settings.vcWidgetVal;
+                vcWidgetValue = widgetValue;
+                document.querySelector("#valueSend input").value = widgetValue;
             }
 
+            if (getPropFromString(jsonObj, 'payload.settings.vcWidgetResVal')) {
+                var widgetValue = jsonObj.payload.settings.vcWidgetResVal;
+                vcWidgetResValue = widgetValue;
+                document.querySelector("#valueSend2 input").value = widgetValue;
+            }
+            if (getPropFromString(jsonObj, 'payload.settings.buttonType')) {
+                var buttonType = jsonObj.payload.settings.buttonType;
+                document.querySelector(`#radioBtn${buttonType}`).checked = true;
+                document.querySelector(`#radioBtn${buttonType}`).dispatchEvent(new Event('change'));
+                
+            }
 
+            if (getPropFromString(jsonObj, 'payload.settings.iconDes')) {
+                var iconDescription = jsonObj.payload.settings.iconDes;
+                    demoCanvas("",iconColor,iconImage,iconDescription);
+            }
+            if (getPropFromString(jsonObj, 'payload.settings.iconCol')) {
+                var iconColor = jsonObj.payload.settings.iconCol;
+                    demoCanvas("",iconColor,iconImage,iconDescription);
+            }
+            if (getPropFromString(jsonObj, 'payload.settings.iconImg')) {
+                var iconImage = jsonObj.payload.settings.iconImg;
+                    demoCanvas("",iconColor, iconImage, iconDescription);
+            }
+            // else {
+            //     document.querySelector('#radioBtn0').dispatchEvent(new Event('change'));
+            // }
+        
         }
     };
 }
@@ -85,18 +157,25 @@ window.addEventListener('message', function (ev) {
     }
 }, false);
 
-function openMeExternal() {
-    window.xtWindow = window.open('test.html', 'Connect QLC+', "width=500px,height=300px");
-    //setTimeout(() => window.xtWindow.postMessage('initPropertyInspector', '*'), 1500);
-}
+function saveIconData(){
+    saveSetting(iconDescription, "iconDes");
+    setTimeout(function(){
+        saveSetting(iconColor, "iconCol");
+    }, 1000);
+    
+    // saveSetting(iconImage, "iconImg");
+};
 
 function saveVcWidget() {
     let select = document.getElementById("select-vc-widget");
-    saveSetting(select.options[select.selectedIndex].value, "vcWidget");
+    vcWidget = select.options[select.selectedIndex].value;
+    saveSetting();
+
 }
 function saveVcWidget2() {
     let select = document.getElementById("select-vc-widget2");
-    saveSetting(select.options[select.selectedIndex].value, "vcWidgetRes");
+    vcWidgetRes = select.options[select.selectedIndex].value;
+    saveSetting();
 }
 
 function initPropertyInspector(initDelay) {
@@ -145,18 +224,26 @@ function loadGlobalSetting(param) {
     }
 }
 
-function saveSetting(value, param) {
+async function saveSetting(value, param) {
     if (websocket && (websocket.readyState === 1)) {
         const json = {
             "event": "setSettings",
             "context": uuid,
             'payload': {
-                [param]: value
+                ["iconDes"]: iconDescription,
+                ["iconCol"]: iconColor,
+                ["iconImg"]: iconImage,
+                ["vcWidget"]: vcWidget,
+                ["vcWidgetRes"]: vcWidgetRes,
+                ["vcWidgetVal"]: vcWidgetValue,
+                ["vcWidgetResVal"]: vcWidgetResValue,
+                ["buttonType"]: buttonType,
             }
         };
         websocket.send(JSON.stringify(json));
     }
 }
+
 function loadSetting() {
     if (websocket && (websocket.readyState === 1)) {
         const json = {
@@ -481,9 +568,7 @@ const getPropFromString = (jsn, str, sep = '.') => {
 // import data from 'imageConfig.json';
 
 var img = new Image();
-let iconDescription = "";
-let iconColor = "";
-let iconImage = "";
+
 
 document.querySelector("#select-vc-widget").addEventListener("change", function (e) {
     demoCanvas(e.target.options[e.target.selectedIndex].text);
@@ -685,7 +770,7 @@ async function demoCanvas(text = "",color="",imgSrc="",imgTitle="") {
     }
 
     updateCanvas(text);
-
+    saveIconData();
     const pos = { x: 0, y: 0 };
 
     var el = document.querySelector('.sdpi-wrapper');

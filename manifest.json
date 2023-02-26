@@ -18,7 +18,7 @@
   "PropertyInspectorPath": "index_qlc.html", 
   "Description": "QLC+ Plugin for Stream Deck", 
   "Name": "QLC-Connect", 
-  "Icon": "images/default", 
+  "Icon": "images/defaultIcon", 
   "URL": "https://www.qlcplus.org/", 
   "Category": "QLC+ Control",
   "CategoryIcon": "images/pluginIcon",
