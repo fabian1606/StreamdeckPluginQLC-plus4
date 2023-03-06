@@ -98,6 +98,21 @@ function connectElgatoStreamDeckSocket(
                     }
                     // alert("Something");
                 }
+                if (getPropFromString(jsonObj, 'payload.settings.iconDes')) {
+                    var iconDescription = jsonObj.payload.settings.iconDes;
+                        contextArray[contextObjIndex].iconDes = iconDescription;
+                }
+                if (getPropFromString(jsonObj, 'payload.settings.iconCol')) {
+                    var iconColor = jsonObj.payload.settings.iconCol;
+                        contextArray[contextObjIndex].iconCol = iconColor;
+                }
+                if (getPropFromString(jsonObj, 'payload.settings.iconImg')) {
+                    var iconImage = jsonObj.payload.settings.iconImg;
+                        contextArray[contextObjIndex].iconImg = iconImage;
+                    if(contextArray[contextObjIndex].iconDes != "" && contextArray[contextObjIndex].iconCol != ""){
+                        loadAndSetImage(contextArray[contextObjIndex], 0);
+                    }
+                }
             }
 
             if(~['applicationDidLaunch', 'applicationDidTerminate'].indexOf(event)) {
@@ -105,7 +120,7 @@ function connectElgatoStreamDeckSocket(
                 const img = `images/${jsonObj.payload.application}.png`;
                 const arrImages = event === 'applicationDidTerminate' ? [img, 'images/terminated.png'] : img;
                 contextArray.forEach(a => {
-                    loadAndSetImage(a.id, arrImages);
+                    // loadAndSetImage(a.id, arrImages);
                 });
 
                 if(event === 'applicationDidLaunch') {
@@ -176,8 +191,9 @@ var action = {
         // }, 100);
 
         if(contextArray.findIndex(obj => obj.id === jsn.context)===-1) {
-            contextArray.push({id : jsn.context});
+            contextArray.push({id : jsn.context,iconDes:"",iconCol:"#000000",iconImg:""});
             loadSetting(jsn.context);
+            if(qlcConnected())alert("Connected");
         }
 
         action['keyDown' + jsn.context] = function(jsn) {
@@ -209,43 +225,6 @@ var action = {
                             sendToPropertyInspector(jsn.context, {runningApps});
                             break;
                     };
-                } else {
-                    if(pl.hasOwnProperty('sdpi_collection')) {
-                        console.log('%c%s', 'color: white; background: blue; font-size: 12px;', `PI SENDTOPLUGIN for ${jsn.context}`);
-                        console.log(pl.sdpi_collection);
-                        if(pl.sdpi_collection['key'] === 'your_canvas') {
-                            setImage(jsn.context, pl.sdpi_collection['value']);
-
-                        } else if(pl.sdpi_collection['key'] === 'elgfilepicker') {  //+++alex, this should work and works in ImageLibrary but not here...
-                            const path = pl.sdpi_collection.value;
-                            console.log("filepicker", pl.sdpi_collection);
-                            readFile(path, {responseType: 'blob'}).then((b64) => {
-                                console.log(jsn.context, path, b64);
-                                setImage(jsn.context, b64);
-                            });
-
-                        } else {
-                            setTitle(jsn.context, "");
-                        }
-                    } else if(pl.hasOwnProperty('DOM')) {
-
-                    }
-                    if(pl.hasOwnProperty("iconCol")){
-                    }
-                    // else if(false){
-                    else if(pl.hasOwnProperty("vcWidget")){
-                        if(jsn.context.interval)clearInterval(jsn.interval);
-                        // jsn.context.interval = setInterval(function(){
-                        //     getVal(pl.widgetId,jsn.context).then(
-                        //             function(value) { loadAndSetImage(jsn.context,value); },
-                        //             function(error) { alert(error); }
-                        //         );
-                        // }, 100);
-                        
-                    }
-                    else {
-                        console.log('%c%s', 'color: white; background: green; font-size: 12px;', `PI SENDTOPLUGIN for ${jsn.context}`);
-                    }
                 }
             }
         };
@@ -308,18 +287,18 @@ function setImageState(value){
     });
 }
 
-function loadAndSetImage(context,value) {
+function loadAndSetImage(obj,value) {
     loadImage( function(data) {
         var json = {
             'event': 'setImage',
-            'context': context,
+            'context': obj.id,
             'payload': {
                 'image': data,
                 'target': DestinationEnum.HARDWARE_AND_SOFTWARE
             }
         };
         websocket.send(JSON.stringify(json));
-    },value);
+    },obj,value);
 };
 
 /** UTILS */
@@ -328,14 +307,6 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-function equalArray(a, b) {
-    if(a.length != b.length) {
-        return false;
-    }
-    return a.filter(function(i) {
-        return !b.includes(i);
-    }).length === 0;
-}
 
 function setContext(ctx) {
     console.log('%c%s', 'color: white; background: blue; font-size: 12px;', 'piContext', ctx, piContext);
@@ -343,64 +314,109 @@ function setContext(ctx) {
     console.log('new context: ', piContext);
 }
 
-function loadImage(callback,value) {
+function loadImage(callback,obj,value) {
     /** Convert to array, so we may load multiple images at once */
     const canvas = document.createElement('canvas');
     canvas.width = 144;
     canvas.height = 144;
 
+    function roundRect(x, y, w, h, radius)
+    {
+        var r = x + w;
+        var b = y + h;
+        ctx.beginPath();
+        ctx.strokeStyle="#00ff00";
+        ctx.lineWidth=4;
+        ctx.moveTo(x+radius, y);
+        ctx.lineTo(r-radius, y);
+        ctx.quadraticCurveTo(r, y, r, y+radius);
+        ctx.lineTo(r, y+h-radius);
+        ctx.quadraticCurveTo(r, b, r-radius, b);
+        ctx.lineTo(x+radius, b);
+        ctx.quadraticCurveTo(x, b, x, b-radius);
+        ctx.lineTo(x, y+radius);
+        ctx.quadraticCurveTo(x, y, x+radius, y);
+        ctx.stroke();
+    }
+
+    function lightOrDark(color) {
+
+        // Check the format of the color, HEX or RGB?
+        if (color.match(/^rgb/)) {
+
+            // If HEX --> store the red, green, blue values in separate variables
+            color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+
+            r = color[1];
+            g = color[2];
+            b = color[3];
+        }
+        else {
+
+            // If RGB --> Convert it to HEX: http://gist.github.com/983661
+            color = +("0x" + color.slice(1).replace(
+                color.length < 5 && /./g, '$&$&'
+            )
+            );
+
+            r = color >> 16;
+            g = color >> 8 & 255;
+            b = color & 255;
+        }
+
+        // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+        hsp = Math.sqrt(
+            0.299 * (r * r) +
+            0.587 * (g * g) +
+            0.114 * (b * b)
+        );
+
+        // Using the HSP value, determine whether the color is light or dark
+        if (hsp > 127.5) {
+
+            return "#000000";
+        }
+        else {
+
+            return "#ffffff";
+        }
+    }
+
     var ctx = canvas.getContext('2d');
     ctx.globalCompositeOperation = 'source-over';
-    if(value == 0)
-        ctx.fillStyle = "black";
-    else
-        ctx.fillStyle = "green";
-    ctx.fillRect(0, 0, canvas.width,canvas.height);
-    ctx.save();
-
-    callback(canvas.toDataURL('image/png'));
-    // or to get raw image data
-    //callback && callback(canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, ''));
-
-    // for(let url of aUrl) {
-    //     let image = new Image();
-    //     let cnt = imgCount;
-    //     let w = 144, h = 144;
-
-    //     image.onload = function() {
-    //         imgCache[url] = this;
-    //         // look at the size of the first image
-    //         if(url === aUrl[0]) {
-    //             canvas.width = this.naturalWidth; // or 'width' if you want a special/scaled size
-    //             canvas.height = this.naturalHeight; // or 'height' if you want a special/scaled size
-    //         }
-    //         // if (Object.keys(imgCache).length == aUrl.length) {
-    //         if(cnt < 1) {
-    //             if(inFillcolor) {
-    //                 ctx.fillStyle = "black";
-    //                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-    //             }
-    //             // draw in the proper sequence FIFO
-    //             aUrl.forEach(e => {
-    //                 if(!imgCache[e]) {
-    //                     console.warn(imgCache[e], imgCache);
-    //                 }
-
-    //                 if(imgCache[e]) {
-    //                     ctx.drawImage(imgCache[e], 0, 0);
-    //                     ctx.save();
-    //                 }
-    //             });
-
-    //             callback(canvas.toDataURL('image/png'));
-    //             // or to get raw image data
-    //             // callback && callback(canvas.toDataURL('image/png').replace(/^data:image\/(png|jpg);base64,/, ''));
-    //         }
-    //     };
-
-    //     imgCount--;
-    //     image.src = url;
-    // }
+    
+    
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const accentColor = obj.iconCol;
+    ctx.fillStyle = accentColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height / 4);
+    ctx.fillStyle = lightOrDark(accentColor);
+    ctx.textAlign = "center";
+    let text = obj.iconDes;
+    if (text.length <= 10) {
+        ctx.font = "900 20px Arial";
+    } else {
+        ctx.font = "900 15px Arial";
+    }
+    ctx.lineWidth = 1;
+    ctx.fillText(text, canvas.width / 2, 25);
+    ctx.fillStyle = '#515151';
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#000000';
+    ctx.arc(canvas.width / 2, canvas.height / 2 + canvas.height / 8, 50, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+    var img = new Image();
+    img.src = obj.iconImg;
+    img.onload = function () {
+        ctx.drawImage(img, canvas.width / 2 - 35, canvas.height / 2 + canvas.height / 8 - 35, 70, 70);
+        ctx.save();
+        callback(canvas.toDataURL('image/png'));
+    }
+    if(value != 0)
+        roundRect(2,2,canvas.width-4,canvas.height-4,25);
 };
 
 function readFile(fileName, props = {}) {

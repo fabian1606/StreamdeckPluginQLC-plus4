@@ -158,15 +158,6 @@ window.addEventListener('message', function (ev) {
     }
 }, false);
 
-function saveIconData(){
-    saveSetting(iconDescription, "iconDes");
-    setTimeout(function(){
-        saveSetting(iconColor, "iconCol");
-    }, 1000);
-    
-    // saveSetting(iconImage, "iconImg");
-};
-
 function saveVcWidget() {
     let select = document.getElementById("select-vc-widget");
     vcWidget = select.options[select.selectedIndex].value;
@@ -247,16 +238,7 @@ async function saveSetting(value, param) {
 
     }
 }
-function sendToPlugin() {
-    sendValueToPlugin(iconColor,"iconCol");
-    sendValueToPlugin(iconImage,"iconImg");
-    sendValueToPlugin(iconDescription,"iconDes");  
-    sendValueToPlugin(vcWidget,"vcWidget");
-    sendValueToPlugin(vcWidgetRes,"vcWidgetRes");
-    sendValueToPlugin(vcWidgetValue,"vcWidgetVal");
-    sendValueToPlugin(vcWidgetResValue,"vcWidgetResVal");
-    sendValueToPlugin(buttonType,"buttonType");
-};
+
 
 function loadSetting() {
     if (websocket && (websocket.readyState === 1)) {
@@ -724,30 +706,10 @@ async function demoCanvas(text = "",color="",imgSrc="",imgTitle="") {
         }
     }
 
-    function roundRect(x, y, w, h, radius)
-    {
-        var r = x + w;
-        var b = y + h;
-        ctx.beginPath();
-        ctx.strokeStyle="#00ff00";
-        ctx.lineWidth=4;
-        ctx.moveTo(x+radius, y);
-        ctx.lineTo(r-radius, y);
-        ctx.quadraticCurveTo(r, y, r, y+radius);
-        ctx.lineTo(r, y+h-radius);
-        ctx.quadraticCurveTo(r, b, r-radius, b);
-        ctx.lineTo(x+radius, b);
-        ctx.quadraticCurveTo(x, b, x, b-radius);
-        ctx.lineTo(x, y+radius);
-        ctx.quadraticCurveTo(x, y, x+radius, y);
-        ctx.stroke();
-    }
-
     function updateCanvas(text) {
 
 
         ctx.lineWidth = 4;
-        ctx.strokeStyle = '#00ff00';
         ctx.fillStyle = "black";
         text = (imgTitle || text).toUpperCase();
         iconDescription = text;
@@ -774,20 +736,17 @@ async function demoCanvas(text = "",color="",imgSrc="",imgTitle="") {
         ctx.arc(cnv.width / 2, cnv.height / 2 + cnv.height / 8, 50, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
-        //ctx image
         img.src = imgSrc || checkType(text);
         iconImage = img.src;
         document.querySelector("#active-icon").style.backgroundImage = `url(${img.src})`;
         img.onload = function () {
             ctx.drawImage(img, cnv.width / 2 - 35, cnv.height / 2 + cnv.height / 8 - 35, 70, 70);
             updateKeyForDemoCanvas(cnv, cnv);
+            saveSetting();
         }
-        roundRect(2,2,cnv.width-4,cnv.height-4,25);
-
     }
 
     updateCanvas(text);
-    saveIconData();
     const pos = { x: 0, y: 0 };
 
     var el = document.querySelector('.sdpi-wrapper');
