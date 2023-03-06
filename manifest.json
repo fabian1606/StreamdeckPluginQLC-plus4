@@ -33,20 +33,6 @@
         "MinimumVersion" : "10"
     }
   ],
-  "ApplicationsToMonitor": {
-    "mac": [ 
-      "com.apple.mail",
-      "com.apple.Safari",
-      "com.apple.systempreferences",
-      "com.apple.ActivityMonitor"
-    ],
-    "windows": [
-      "chrome.exe",
-      "Code.exe",
-      "MicrosoftEdge.exe",
-      "iexplore.exe"
-    ]
-  },
   "Software": 
     {
         "MinimumVersion" : "4.1"

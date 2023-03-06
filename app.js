@@ -1,4 +1,16 @@
+let vcWidget = "";
+let vcWidgetValue = 255;
+let vcWidgetRes = "";
+let vcWidgetResValue = 255;
+
+const getPropFromString = (jsn, str, sep = '.') => {
+    const arr = str.split(sep);
+    return arr.reduce((obj, key) =>
+        (obj && obj.hasOwnProperty(key)) ? obj[key] : undefined, jsn);
+};
+
 var websocket = null,
+    uuid = null,
     piContext = 0,
     MActions = {},
     runningApps = [],
@@ -12,6 +24,7 @@ function connectElgatoStreamDeckSocket(
     inApplicationInfo,
     inActionInfo
 ) {
+    uuid = inUUID;
     if(websocket) {
         websocket.close();
         websocket = null;
@@ -36,6 +49,7 @@ function connectElgatoStreamDeckSocket(
         };
 
         websocket.send(JSON.stringify(json));
+        loadGlobalSetting('qlcIP');
     };
 
     websocket.onclose = function(evt) {
@@ -50,13 +64,48 @@ function connectElgatoStreamDeckSocket(
         try {
             var jsonObj = JSON.parse(evt.data);
             var event = jsonObj['event'];
+            if(event === 'didReceiveGlobalSettings') {
+                if (getPropFromString(jsonObj, 'payload.settings.qlcIP')) {
+                    var ipPort = jsonObj.payload.settings.qlcIP;
+                    connectToWebSocket(ipPort);
+                }
+            }
+
+            if (event === 'didReceiveSettings') {
+                let contextObjIndex = contextArray.findIndex(a => a.id === jsonObj['context']); 
+                if (getPropFromString(jsonObj, 'payload.settings.vcWidget')) {
+                    var widgetId = jsonObj.payload.settings.vcWidget;
+                    contextArray[contextObjIndex].vcWidget = widgetId;
+                }
+                if (getPropFromString(jsonObj, 'payload.settings.vcWidgetRes')) {
+                    var widgetId = jsonObj.payload.settings.vcWidgetRes;
+                    contextArray[contextObjIndex].vcWidgetRes = widgetId;
+                }
+                if (getPropFromString(jsonObj, 'payload.settings.vcWidgetVal')) {
+                    var widgetValue = jsonObj.payload.settings.vcWidgetVal;
+                    contextArray[contextObjIndex].vcWidgetValue = widgetValue;
+                }
+    
+                if (getPropFromString(jsonObj, 'payload.settings.vcWidgetResVal')) {
+                    var widgetValue = jsonObj.payload.settings.vcWidgetResVal;
+                    contextArray[contextObjIndex].vcWidgetResValue = widgetValue;
+                }
+                if (getPropFromString(jsonObj, 'payload.settings.buttonType')) {
+                    var buttonType = jsonObj.payload.settings.buttonType;
+                    contextArray[contextObjIndex].buttonType = buttonType;
+                    if (buttonType != "1"){
+                        // if(vcWidget)setIntervalRequest(vcWidget);
+                    }
+                    // alert("Something");
+                }
+            }
 
             if(~['applicationDidLaunch', 'applicationDidTerminate'].indexOf(event)) {
                 const app = capitalize(getApplicationName(jsonObj));
                 const img = `images/${jsonObj.payload.application}.png`;
                 const arrImages = event === 'applicationDidTerminate' ? [img, 'images/terminated.png'] : img;
                 contextArray.forEach(a => {
-                    loadAndSetImage(a, arrImages);
+                    loadAndSetImage(a.id, arrImages);
                 });
 
                 if(event === 'applicationDidLaunch') {
@@ -89,6 +138,26 @@ function connectElgatoStreamDeckSocket(
     };
 }
 
+function loadGlobalSetting(param) {
+    if (websocket && (websocket.readyState === 1)) {
+        const json = {
+            "event": "getGlobalSettings",
+            "context": uuid
+        };
+        websocket.send(JSON.stringify(json));
+    }
+}
+
+function loadSetting(pUuid) {
+    if (websocket && (websocket.readyState === 1)) {
+        const json = {
+            "event": "getSettings",
+            "context": pUuid
+        };
+        websocket.send(JSON.stringify(json));
+    }
+}
+
 /**
  * We use a contextArray to push our context. You can use a cache to keep some
  * data private to the plugin or to update a key regularily without waiting
@@ -99,9 +168,16 @@ function connectElgatoStreamDeckSocket(
 var action = {
 
     willAppear: function(jsn) {
-        console.log('**** action.WILLAPPEAR', jsn.context);
-        if(!contextArray.includes(jsn.context)) {
-            contextArray.push(jsn.context);
+        // jsn.context.interval = setInterval(function(){
+        //     getVal(pl.widgetId,jsn.context).then(
+        //             function(value) {alert(value);},
+        //             function(error) { alert(error); }
+        //         );
+        // }, 100);
+
+        if(contextArray.findIndex(obj => obj.id === jsn.context)===-1) {
+            contextArray.push({id : jsn.context});
+            loadSetting(jsn.context);
         }
 
         action['keyDown' + jsn.context] = function(jsn) {
@@ -122,7 +198,7 @@ var action = {
                     console.log('%c%s', 'font-style: bold; color: white; background: blue; font-size: 15px;', `PI-event for ${jsn.context}:${pi}`);
                     switch(pl.property_inspector) {
                         case 'propertyInspectorWillDisappear':
-                            loadAndSetImage(jsn.context);
+                            // loadAndSetImage(jsn.context);
                             // setTimeout(() => {
                             //     loadAndSetImage(jsn.context, `images/default.png`);
                             // }, 500);
@@ -149,11 +225,25 @@ var action = {
                             });
 
                         } else {
-                            setTitle(jsn.context, pl.sdpi_collection['value']);
+                            setTitle(jsn.context, "");
                         }
                     } else if(pl.hasOwnProperty('DOM')) {
 
-                    } else {
+                    }
+                    if(pl.hasOwnProperty("iconCol")){
+                    }
+                    // else if(false){
+                    else if(pl.hasOwnProperty("vcWidget")){
+                        if(jsn.context.interval)clearInterval(jsn.interval);
+                        // jsn.context.interval = setInterval(function(){
+                        //     getVal(pl.widgetId,jsn.context).then(
+                        //             function(value) { loadAndSetImage(jsn.context,value); },
+                        //             function(error) { alert(error); }
+                        //         );
+                        // }, 100);
+                        
+                    }
+                    else {
                         console.log('%c%s', 'color: white; background: green; font-size: 12px;', `PI SENDTOPLUGIN for ${jsn.context}`);
                     }
                 }
@@ -162,7 +252,7 @@ var action = {
 
         action['willDisappear' + jsn.context] = function(jsn) {
             console.log('**** action.WILLDISAPPEAR', jsn.context, contextArray);
-            contextArray = contextArray.filter(item => item !== jsn.context);
+            contextArray = contextArray.filter(item => item.id !== jsn.context);
             console.log(contextArray);
         };
 
@@ -212,7 +302,13 @@ function setImage(context, imgData) {
     websocket.send(JSON.stringify(json));
 };
 
-function loadAndSetImage(context) {
+function setImageState(value){
+    contextArray.forEach(a => {
+        getVal(pl.widgetId,a);
+    });
+}
+
+function loadAndSetImage(context,value) {
     loadImage( function(data) {
         var json = {
             'event': 'setImage',
@@ -223,7 +319,7 @@ function loadAndSetImage(context) {
             }
         };
         websocket.send(JSON.stringify(json));
-    });
+    },value);
 };
 
 /** UTILS */
@@ -247,7 +343,7 @@ function setContext(ctx) {
     console.log('new context: ', piContext);
 }
 
-function loadImage(callback) {
+function loadImage(callback,value) {
     /** Convert to array, so we may load multiple images at once */
     const canvas = document.createElement('canvas');
     canvas.width = 144;
@@ -255,9 +351,11 @@ function loadImage(callback) {
 
     var ctx = canvas.getContext('2d');
     ctx.globalCompositeOperation = 'source-over';
-
-    ctx.fillStyle = "red";
-    ctx.fillRect(0, 0, 20,20);
+    if(value == 0)
+        ctx.fillStyle = "black";
+    else
+        ctx.fillStyle = "green";
+    ctx.fillRect(0, 0, canvas.width,canvas.height);
     ctx.save();
 
     callback(canvas.toDataURL('image/png'));

@@ -145,6 +145,7 @@ function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, 
             // else {
             //     document.querySelector('#radioBtn0').dispatchEvent(new Event('change'));
             // }
+            sendToPlugin();
         
         }
     };
@@ -225,12 +226,8 @@ function loadGlobalSetting(param) {
 }
 
 async function saveSetting(value, param) {
-    if (websocket && (websocket.readyState === 1)) {
-        const json = {
-            "event": "setSettings",
-            "context": uuid,
-            'payload': {
-                ["iconDes"]: iconDescription,
+    let jsonData = {
+        ["iconDes"]: iconDescription,
                 ["iconCol"]: iconColor,
                 ["iconImg"]: iconImage,
                 ["vcWidget"]: vcWidget,
@@ -238,11 +235,28 @@ async function saveSetting(value, param) {
                 ["vcWidgetVal"]: vcWidgetValue,
                 ["vcWidgetResVal"]: vcWidgetResValue,
                 ["buttonType"]: buttonType,
-            }
+    };
+    if (websocket && (websocket.readyState === 1)) {
+        const json = {
+            "event": "setSettings",
+            "context": uuid,
+            'payload': jsonData
         };
         websocket.send(JSON.stringify(json));
+        sendToPlugin();
+
     }
 }
+function sendToPlugin() {
+    sendValueToPlugin(iconColor,"iconCol");
+    sendValueToPlugin(iconImage,"iconImg");
+    sendValueToPlugin(iconDescription,"iconDes");  
+    sendValueToPlugin(vcWidget,"vcWidget");
+    sendValueToPlugin(vcWidgetRes,"vcWidgetRes");
+    sendValueToPlugin(vcWidgetValue,"vcWidgetVal");
+    sendValueToPlugin(vcWidgetResValue,"vcWidgetResVal");
+    sendValueToPlugin(buttonType,"buttonType");
+};
 
 function loadSetting() {
     if (websocket && (websocket.readyState === 1)) {
@@ -656,11 +670,14 @@ async function demoCanvas(text = "",color="",imgSrc="",imgTitle="") {
         return color;
     }
     function checkType(text) {
-        let type = "images/types/qlcIcon.png";
+        let type = "";
         types.forEach(t => {
-            if (t.names.includes(text.toLowerCase())) type = t.src;
-            if (checkColor(text) !== "#000") type = "images/types/color.svg";
+            t.names.forEach(name => {
+                if (text.toLowerCase().includes(name)) type = t.src;
+            });
         });
+        if (checkColor(text) !== "#000" && type == "" ) type = "images/types/color.svg";
+        else if (type == "" ) type = "images/types/qlcIcon.png";
         return type;
     }
 
