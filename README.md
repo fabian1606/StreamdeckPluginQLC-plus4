@@ -4,10 +4,10 @@ This plugin allows you to control the QLC+ virtual console from the Elgato Strea
 It communicats with the QLC+ webinterface to send the button presses to the virtual console and read the button states to show feedback on the stream deck.
 
 # Installation (only tested on windows)
-To use this plugin you need to install the [QLC+](https://www.qlcplus.org/) software and the [Stream Deck Software](https://www.elgato.com/en/gaming/downloads) from Elgato. then you need to clone this repository to the stream deck plugins folder. The default location is `path%appdata%\Elgato\StreamDeck\Plugins\`
+To use this plugin you need to install the [QLC+](https://www.qlcplus.org/) software and the [Stream Deck Software](https://www.elgato.com/en/gaming/downloads) from Elgato. then you need to copy  the folder `com.qlc.QLC-connect.sdPlugin` to the stream deck plugins folder. The default location is `path%appdata%\Elgato\StreamDeck\Plugins\`
 then you need to restart the stream deck software and you should be able to add the QLC+ plugin to your stream deck.  
 
-![image](images/readme/icons.png)
+![image](readme/icons.png)
 
 # Usage
 
@@ -20,7 +20,7 @@ To connect qlc+ you have to enable the webinterface in qlc+. to do that you have
 ## Selecting a button
 Now you can select a qlc+ virtual console element or click on the detect button to automatically detect an element. when you have selected an element the icon and color of the button gets updated to match the elements title. 
 
-![image](images/readme/config.png)
+![image](readme/config.png)
 
 when you dont like the icon, color or title you can change it in the configuration window.
 
