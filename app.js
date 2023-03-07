@@ -205,8 +205,15 @@ var action = {
         action['keyUp' + jsn.context] = function(jsn) {
             console.log('**** action.KEYUP', jsn.context);
             const obj  = contextArray.filter(item => item.id === jsn.context)[0];
-            if(obj.vcWidgetRes != "" && obj.vcWidgetResValue != ""){
-                sendButtonClick(obj.vcWidgetRes, obj.vcWidgetResValue);
+            if(obj.buttonType == "1"){
+                if(obj.vcWidgetRes != "" && obj.vcWidgetResValue != ""){
+                    sendButtonClick(obj.vcWidgetRes, obj.vcWidgetResValue);
+                }
+            }
+            else if(obj.buttonType == "2"){
+                if(obj.vcWidget != "" && obj.vcWidgetValue != ""){
+                    sendButtonClick(obj.vcWidget, obj.vcWidgetValue);
+                }
             }
         };
 
