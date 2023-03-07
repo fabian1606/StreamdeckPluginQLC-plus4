@@ -18,15 +18,15 @@ function requestAPI(cmd)
 {
   if (isConnected === true)
   websocketQLC.send("QLC+API|" + cmd);
-  else
-    alert("You must connect to QLC+ WebSocket first!");
+  // else
+    // alert("You must connect to QLC+ WebSocket first!");
 }
 function requestAPIWithParam(cmd, num)
 {
     if (isConnected === true)
       websocketQLC.send("QLC+API|" + cmd + "|" + num);
-    else
-      alert("You must connect to QLC+ WebSocket first!");
+    // else
+      // alert("You must connect to QLC+ WebSocket first!");
 }
 function autoDetectWidget(number, id){
     selectId = id;
@@ -143,7 +143,6 @@ function connectToWebSocket(host) {
             let select = document.getElementById("select"+selectId.split("button")[1]);
             select.value=select.options[autoDetectNumber+1].value;
             select.dispatchEvent(new Event('change'));
-            alert(select.options[autoDetectNumber+1].text);
             autoDetectNumber = 0;
             widgets.forEach(widget => {
               widget.status = "";

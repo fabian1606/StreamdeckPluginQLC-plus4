@@ -58,6 +58,7 @@ function qlcConnected() {
 }
 
 function connectToWebSocket(host) {
+    fetch('http://'+host+'/', {method: "GET"})
     var url = 'ws://' + host + '/qlcplusWS';
     websocketQLC = new WebSocket(url);
     // update the host information
@@ -68,21 +69,21 @@ function connectToWebSocket(host) {
     websocketQLC.onopen = function (ev) {
         isConnected = true;
         loadSetting();
-        alert("connected");
-
     };
-
+    
     function disconnectWebsocet() {
         isConnected = false;
+        // alert("disconnected");
     };
-
+    
     websocketQLC.onclose = () => {
         disconnectWebsocet();
     };
-
+    
     websocketQLC.onerror = disconnectWebsocet();
-
+    
     websocketQLC.onmessage = function (ev) {
+        // alert("connected");
 
         var msgParams = ev.data.split('|');
 

@@ -47,7 +47,6 @@ function connectElgatoStreamDeckSocket(
             event: inMessageType,
             uuid: inUUID
         };
-
         websocket.send(JSON.stringify(json));
         loadGlobalSetting('qlcIP');
     };
@@ -418,31 +417,3 @@ function loadImage(callback,obj,value) {
     if(value != 0)
         roundRect(2,2,canvas.width-4,canvas.height-4,25);
 };
-
-function readFile(fileName, props = {}) {
-    return new Promise(function(resolve, reject) {
-        const request = Object.assign(new XMLHttpRequest(), props || {});
-        request.open('GET', fileName, true);
-        request.onload = (e, f) => {
-            const isBlob = request.responseType == "blob" || (request.response instanceof Blob || ['[object File]', '[object Blob]'].indexOf(Object.prototype.toString.call(request.response)) !== -1);
-
-            console.log("utils.readFile", request, 'isBlob', isBlob, this);
-
-            if(isBlob) {
-                const reader = new FileReader();
-                reader.onloadend = (evt) => {
-                    resolve(evt.target.result);
-                };
-                console.log("readAsDataURL");
-                reader.readAsDataURL(request.response);
-            } else if(request.responseType == 'arraybuffer') {
-                console.log("arraybuffer");
-                resolve(request.response);
-            } else {
-                console.log("responseText");
-                resolve(request.responseText);
-            }
-        };
-        request.send();
-    });
-}
