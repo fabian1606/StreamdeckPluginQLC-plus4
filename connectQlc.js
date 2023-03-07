@@ -31,9 +31,7 @@ function requestAPIWithParam(cmd, num)
 function autoDetectWidget(number, id){
     selectId = id;
     document.getElementById(id).style.backgroundColor = "#893c2f";
-            //alert(element.id);
             if(number< widgets.length){
-                //alert(widgets[number].id);
             requestAPIWithParam('getWidgetStatus',widgets[number].id);
             }
 
@@ -52,7 +50,6 @@ function connectToWebSocket(host) {
         document.getElementById('connected').style.color = "black";
         document.getElementById('connected').innerHTML= "connected";
         document.getElementById("connect-qlc-container").open = false;
-        //document.getElementById('content-if-connected').style.display = "block";
         isConnected = true;
         requestAPI('getWidgetsList');
         loadSetting();
@@ -72,30 +69,13 @@ function connectToWebSocket(host) {
     };
 
     websocketQLC.onerror = disconnectWebsocet();//(ev) {
-    //alert("QLC+ connection error!");
-    //};
-
-    // websocketQLC message handler. This is where async events
-    // will be shown or processed as needed
     websocketQLC.onmessage = function(ev) {
-        //alert("widget");
-      // Uncomment the following line to display the received message
-      //alert(ev.data);
-  
-      // Event data is formatted as follows: "QLC+API|API name|arguments"
-      // Arguments vary depending on the API called
   
       var msgParams = ev.data.split('|');
   
       if (msgParams[0] === "QLC+API")
       {
-      if (msgParams[1] === "getWidgetsNumber")
-        {
-          //document.getElementById('getWidgetsNumberBox').innerHTML = msgParams[2];
-        }
-        // Arguments is an array formatted as follows:
-        // Widget ID|Widget name|Widget ID|Widget name|...
-        else if (msgParams[1] === "getWidgetsList")
+      if (msgParams[1] === "getWidgetsList")
         {   
             console.log("widget");
           var tableCode = "";

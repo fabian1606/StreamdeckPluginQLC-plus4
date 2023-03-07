@@ -192,15 +192,22 @@ var action = {
         if(contextArray.findIndex(obj => obj.id === jsn.context)===-1) {
             contextArray.push({id : jsn.context,iconDes:"",iconCol:"#000000",iconImg:""});
             loadSetting(jsn.context);
-            if(qlcConnected())alert("Connected");
         }
 
         action['keyDown' + jsn.context] = function(jsn) {
             console.log('**** action.KEYDOWN', jsn.context);
+            const obj  = contextArray.filter(item => item.id === jsn.context)[0];
+            if(obj.vcWidget != "" && obj.vcWidgetValue != ""){
+                sendButtonClick(obj.vcWidget, obj.vcWidgetValue);
+            }
         };
 
         action['keyUp' + jsn.context] = function(jsn) {
             console.log('**** action.KEYUP', jsn.context);
+            const obj  = contextArray.filter(item => item.id === jsn.context)[0];
+            if(obj.vcWidgetRes != "" && obj.vcWidgetResValue != ""){
+                sendButtonClick(obj.vcWidgetRes, obj.vcWidgetResValue);
+            }
         };
 
         action['sendToPlugin' + jsn.context] = function(jsn) {

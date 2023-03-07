@@ -56,6 +56,12 @@ const pressButton = function(id,value) {
 function qlcConnected() {
     return isConnected;
 }
+function sendButtonClick(id, value) {
+    if (isConnected === true)
+        websocketQLC.send(id +"|"+ value);
+    else
+        alert("You must connect to QLC+ WebSocket first!");
+}
 
 function connectToWebSocket(host) {
     fetch('http://'+host+'/', {method: "GET"})
