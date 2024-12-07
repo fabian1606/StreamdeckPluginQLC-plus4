@@ -26,6 +26,9 @@ when you dont like the icon, color or title you can change it in the configurati
 
 ## Button actions
 You can assign a button action to the button. The button actions are:
-- `Simpe button` - your button is a simpe pushbutton that just sends a value when pressed
-- `Button with evebt on click and release` - your button sends a value when pressed and another value when released both values can be selected and enable some more functions for qlc+.
-- `Flashbutton` - the button sends the same value on click and release. this anables the flash function for chases in qlc+.
+- `Simple button` - your button is a simple pushbutton that just sends a value when pressed
+- `Button with evebt on click and release` - your button sends a value when pressed, and another value when released (both values can be selected and enable some more functions for qlc+)
+- `Flashbutton` - the button sends the same value on click and release (this anables the flash function for chases in qlc+)
+
+- Patch 1 modification by SiliconKnight42 in Dec24 - removed restriction on Values for button to be numeric.  By allowing any value, these Streamdeck buttons can now control QLC Playlists by using the "NEXT" and "PREV" commands; however, care must be taken by users to ensure that only numeric values are sent to other VC Widgets (e.g. buttons, faders, etc.).
+
