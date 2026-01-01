@@ -1,4 +1,4 @@
-# ⚠️⚠️ Not working with current stream-deck version ⚠️⚠️
+# ⚠️ Not working with current stream-deck version
 
 # QLC+ Plugin for the elgato stream deck
 
